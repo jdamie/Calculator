@@ -1,5 +1,29 @@
 import streamlit as st
 import math
+import pandas as pd
+
+#pylint:disable=E0001
+rhos ={
+"Cu": 1.68*10**(-8),
+"Ag": 1.59*10**(-8),
+"Au": 2.21*10**(-8),
+"Al": 2.65*10**(-8),
+"Fe": 1*10**(-7),
+"Pt":10.6*10**(-8)
+
+}# [Ohm* meter]
+
+C_temp_R ={
+"Cu" : 0.00393,
+"Au" : 0.0034,
+"Fe" : 0.005,
+"Al" : 0.0039,
+"Ag" : 0.0038,
+"Pt": 0.00392
+}#
+
+#element sign, m, mm^2, T as celcius return [Ohm]
+def resistance(e, l, A,T): return rhos[e] * l /A *10**6 * (1+C_temp_R[e]*(T-20))
 
 
 def wye2del(a, b, c): return (a * b + b * c + c * a) / a
@@ -13,13 +37,28 @@ def del2wye(a, b, c): return b * c / (a + b + c)
 opts = [
     "Delta Wye Transformation",
     "Conductor Resistance Calculation",
-    "Power Calculator"
+    "Power Calculation",
+    "Test of Multi input"
 ]
-main_selector = st.selectbox(label="Select Calculator", options=opts)
 
-if main_selector == "Delta Wye Transformation":
+main_selector = st.selectbox(label="Select Calculator", options=opts)
+if main_selector == "Conductor Resistance Calculation":
     st.markdown("***")
-    st.write("### Why-Delta Transformation")
+    st.markdown("# Conductor Resistance Calculation")
+    a,b,c,d,e = st.columns(5)
+    with a:
+        area_cond = st.number_input("Cross-sectional area [mm^2}",value = 100)
+    with b:
+        length = st.number_input("Length of Conductor [m]",100)
+    with c:
+        element = st.selectbox(label="Element of conductor [Ωm]",options=rhos)
+    with d:
+        temperature = st.number_input(label= "Temperature of conductor [℃]",value = 25)
+    with e:
+        st.write("Result : "+ format(resistance(element, length, area_cond,temperature),".3e")+"Ω")
+elif main_selector == "Delta Wye Transformation":
+    st.markdown("***")
+    st.write("### Wye-Delta Transformation")
     a, b, c = st.columns(3)
     with a:
         wye_a = st.number_input("Wye a", value=1)
@@ -93,3 +132,32 @@ if main_selector == "Delta Wye Transformation":
             st.write("Rb = " + format(temp[1], ".3e") + "Ohm")
         with k1:
             st.write("Rc = " + format(temp[2], ".3e") + "Ohm")
+elif main_selector == "Power Calculation":
+    st.write("***")
+    st.write("# Single phase")
+    a,b,c,d = st.columns(4)
+    with a :
+        voltage_single = st.number_input(label="Voltage [V]", value= 110)
+    with b :
+        current_single = st.number_input(label="Current [A]",value= 0)
+    with c :
+        pf_single = st.number_input(label="Power Factor", value= 1.00)
+    with d :
+        st.write("Result : ")
+        st.write(format(voltage_single*current_single*pf_single,".3e")+ " [W]")
+        st.write(format(voltage_single*current_single*pf_single/1000,",.1f")+ " [kW]")
+        st.write(format(voltage_single*current_single*pf_single/1000/1.34102,",.1f")+ " [hp]")
+    st.write("***")
+    st.write("# Three Phase (Symmetrical Circuit")
+    e, f, g, h = st.columns(4)
+    with e:
+        voltage_three_s = st.number_input(label="Voltage (line to line, V)", value= 480)
+    with f:
+        current_three_s = st.number_input(label="Current (line, A)",value= 100)
+    with g:
+        pf_three_s = st.number_input(label="Power Factor",value = 0.85)
+    with h:
+        st.write("Result : ")
+        st.write(format(3 ** .5 * voltage_three_s * current_three_s * pf_three_s, ".3e") + " [W]")
+        st.write(format(3 ** .5 * voltage_three_s * current_three_s * pf_three_s/ 1000, ",.1f") + " [kW]")
+        st.write(format(3 ** .5 * voltage_three_s * current_three_s * pf_three_s/ 1000 / 1.34102, ",.1f") + " [hp]")
