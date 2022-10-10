@@ -161,3 +161,14 @@ elif main_selector == "Power Calculation":
         st.write(format(3 ** .5 * voltage_three_s * current_three_s * pf_three_s, ".3e") + " [W]")
         st.write(format(3 ** .5 * voltage_three_s * current_three_s * pf_three_s/ 1000, ",.1f") + " [kW]")
         st.write(format(3 ** .5 * voltage_three_s * current_three_s * pf_three_s/ 1000 / 1.34102, ",.1f") + " [hp]")
+elif main_selector == "Test of Multi input":
+    x,y,z = st.columns([3,2,1])
+    with x :
+        x1 = st.number_input("x1")
+        x2 = st.number_input("x2")
+        x3 = st.number_input("x3")
+    with y :
+        temp_radio = st.radio("Select",["x1@@@@@@@@@@@@@@@","x2","x3"])
+    with z :
+        st.write(temp_radio)
+
